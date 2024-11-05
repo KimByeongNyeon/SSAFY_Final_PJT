@@ -23,7 +23,7 @@ class FinancialProducts(models.Model):
     join_way = models.TextField()
     # 우대 조건
     spcl_cnd = models.TextField()
-    # 적립 유형 (적금에만 존재함)
+    # 예금 적금 판단할 수 있는 변수 ex. 예금은 0 적금은 1
     product_type = models.IntegerField()
 
 class FinancialOptions(models.Model):
@@ -31,7 +31,7 @@ class FinancialOptions(models.Model):
     product = models.ForeignKey(FinancialProducts, on_delete=models.CASCADE, related_name="option")
     # 금융 상품 코드
     fin_prdt_cd = models.TextField()
-    # 적립 유형 명
+    # 적립 유형 명 (적금에만 존재)
     rsrv_type_nm = models.TextField(null=True,blank=True)
     # 저축 금리 유형명
     intr_rate_type_nm = models.CharField(max_length=100)
