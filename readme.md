@@ -38,7 +38,7 @@
 
 ### 팀원 소개
 - **김병년** : 조장, FullStack, Front-end 전체 담당 깃 주소 : https://github.com/KimByeongNyeon/
-- **이용재** : FullStack, Back-end 전체 담당 깃 주소 : https://github.com/yongjae730/yongjae730/
+- **이용재** : FullStack, Back-end 전체 담당 깃 주소 : https://github.com/yongjae730/
 
 ### 참고 사항
 - - -
