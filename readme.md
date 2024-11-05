@@ -37,8 +37,8 @@
  - 발표 및 평가
 
 ### 팀원 소개
-- **김병년** : 조장, FullStack, Front-end 전체 담당
-- **이용재** : FullStack, Back-end 전체 담당
+- **김병년** : 조장, FullStack, Front-end 전체 담당 깃 주소 : https://github.com/KimByeongNyeon/
+- **이용재** : FullStack, Back-end 전체 담당 깃 주소 : https://github.com/yongjae730/yongjae730/
 
 ### 참고 사항
 - - -
@@ -50,4 +50,7 @@
     - [https://apiportal.koreainvestment.com/apiservice/apiservice-domestic-stock-quotations2#L_07802512-4f49-4486-91b4-1050b6f5dc9d](https://apiportal.koreainvestment.com/apiservice/apiservice-domestic-stock-quotations2#L_a08c3421-e50f-4f24-b1fe-64c12f723c77)
 - 코인 API
     - [https://docs.upbit.com/reference/ticker현재가-정보](https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EA%B3%84%EC%A2%8C-%EC%A1%B0%ED%9A%8C)
+
+#### ERD-Cloud 링크
+- https://www.erdcloud.com/d/GdKjjLXs9QvhQZvWz
 
