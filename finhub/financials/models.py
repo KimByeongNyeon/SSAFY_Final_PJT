@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+
+import financials
 User = get_user_model()
 
 
@@ -45,7 +47,7 @@ class FinancialOptions(models.Model):
 
 class FinancialComment(models.Model):
     users = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
-    deposit_products = models.ForeignKey(FinancialProducts, on_delete=models.CASCADE, related_name='financial_comments')
+    financial_products = models.ForeignKey(FinancialProducts, on_delete=models.CASCADE, related_name='financial_comments')
     content = models.CharField(max_length=200)
     create_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
