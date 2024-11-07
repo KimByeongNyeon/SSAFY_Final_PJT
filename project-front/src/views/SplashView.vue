@@ -32,7 +32,6 @@
           <v-carousel hide-delimiter-background height="400px">
             <v-carousel-item v-for="(slide, i) in carouselSlides" :key="i">
               <div class="d-flex flex-column align-center justify-center" style="height: 100%">
-                <img :src="slide.image" alt="캐러셀 이미지" style="width: 100%; height: auto; object-fit: cover" />
                 <h1 class="display-1 font-weight-bold mt-4">{{ slide.title }}</h1>
                 <h3>{{ slide.subtitle }}</h3>
               </div>
@@ -55,15 +54,7 @@
         </div>
 
         <!-- 금융 상품 테이블 -->
-        <v-data-table
-          :headers="getHeaders"
-          :items="getItems"
-          :items-per-page="15"
-          class="financial-table"
-          :footer-props="{
-            'items-per-page-options': [15, 30, 50],
-          }"
-        >
+        <v-data-table :headers="getHeaders" :items="getItems" hide-default-footer class="financial-table">
           <!-- 종목명/상품명 열 커스텀 템플릿 -->
           <template v-slot:item.name="{ item }">
             <div class="d-flex align-center">
@@ -411,5 +402,11 @@ export default {
   border-bottom: 1px solid #e2e8f0;
   padding: 12px 16px !important;
   font-size: 0.875rem;
+}
+.red--text {
+  color: #ff5252;
+}
+.blue--text {
+  color: #2196f3;
 }
 </style>
