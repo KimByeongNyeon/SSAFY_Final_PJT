@@ -16,8 +16,7 @@ from pprint import pprint
 
 api_key = settings.API_KEY
 BASE_URL = f"http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json"
-
-
+# print(api_key)
 # requests 모듈을 활용하여 정기 예금 상품 목록 데이터를
 # 가져와 정기 예금 상품 목록과 옵션 목록을 DB에 저장
 # 정기 예금정보'만'저장하는 상태
@@ -29,9 +28,12 @@ def save_deposit_products(request):
         'topFinGrpNo':'020000',
         'pageNo':1
     }
+    
     response = requests.get(URL,params=params).json()
+    # print(response)
     for product_li in response.get('result').get('baseList'):
         fin_prdt_cd = product_li.get('fin_prdt_cd')
+        fin_co_no = product_li.get('fin_co_no')
         kor_co_nm = product_li.get('kor_co_nm')
         fin_prdt_nm = product_li.get('fin_prdt_nm')
         etc_note = product_li.get('etc_note')
@@ -46,6 +48,7 @@ def save_deposit_products(request):
             kor_co_nm=kor_co_nm,
             fin_prdt_nm=fin_prdt_nm,
             etc_note=etc_note,
+            fin_co_no=fin_co_no,
             join_deny=join_deny,
             join_member=join_member,
             join_way=join_way,
@@ -55,6 +58,7 @@ def save_deposit_products(request):
             'fin_prdt_cd':fin_prdt_cd,
             'kor_co_nm':kor_co_nm,
             'fin_prdt_nm':fin_prdt_nm,
+            'fin_co_no':fin_co_no,
             'etc_note':etc_note,
             'join_deny':join_deny,
             'join_member':join_member,

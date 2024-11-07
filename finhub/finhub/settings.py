@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'coins',
     'accounts',
     'articles',
-    'rest_framwork',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
