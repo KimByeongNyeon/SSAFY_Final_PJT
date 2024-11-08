@@ -1,27 +1,29 @@
-from django.shortcuts import render
-
 # Create your views here.
+from bson import is_valid
 from rest_framework.response import Response
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 import requests
 from rest_framework.decorators import api_view
 from financials.models import FinancialComment,FinancialOptions,FinancialProducts
 from finhub import settings
 from .serializers import FinancialProductsSerializer, FinancialOptionsSerializer, FinancialCommentSerializer
 from rest_framework import status
+from django.contrib.auth import get_user_model
 # Create your views here.
 from pprint import pprint
 
+User = get_user_model()
 
 api_key = settings.API_KEY
+# 정기 예금 API
 BASE_URL = f"http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json"
 # print(api_key)
 # requests 모듈을 활용하여 정기 예금 상품 목록 데이터를
 # 가져와 정기 예금 상품 목록과 옵션 목록을 DB에 저장
 # 정기 예금정보'만'저장하는 상태
 @api_view(['GET'])
-def save_deposit_products(request):
+def save_financial_products(request):
     URL = BASE_URL
     params = {
         'auth':api_key,
@@ -106,7 +108,7 @@ def save_deposit_products(request):
 # GET : 전체 정기 예금 상품 목록 반환
 # POST : 상품 데이터 저장
 @api_view(['GET','POST'])
-def deposit_products(request):
+def financial_products(request):
     if request.method == 'GET':
         products = FinancialProducts.objects.all()
         serializer = FinancialProductsSerializer(products, many=True)
@@ -120,7 +122,7 @@ def deposit_products(request):
 
 # 특정 상품의 옵션 리스트 반환
 @api_view(['GET'])
-def deposit_product_options(request,fin_product_cd):
+def financial_product_options(request,fin_product_cd):
     if request.method == 'GET':
         product = FinancialOptions.objects.filter(fin_prdt_cd=fin_product_cd)
         serializer = FinancialOptionsSerializer(product, many=True)
@@ -143,3 +145,21 @@ def top_rate(request):
         })
     return Response({"error": "No options found"}, status=404)
 
+### 상품에 대한 댓글 생성 및 조회
+@api_view(["GET","POST"])
+def financial_comment(request,fin_product_pk):
+    product = get_object_or_404(FinancialProducts,pk=fin_product_pk)
+    if request.method == "GET":
+        #삭제되지 않은 댓글만 반환하려면 is_deleted=False 옵션
+        comments = FinancialComment.objects.filter(financial_products=product)
+        serializer = FinancialCommentSerializer(comments, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == "POST":
+        serializer = FinancialCommentSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            # 임시 유저 할당
+            temp_user = User.objects.first()  # 첫 번째 유저를 임시로 할당
+            serializer.save(users=temp_user, financial_products=product)
+            # serializer.save(users=request.user, financial_product=product)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
