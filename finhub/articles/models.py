@@ -10,7 +10,7 @@ class Article(models.Model):
     update_at = models.DateTimeField(auto_now=True)
 
 class ArticleComment(models.Model):
-    users = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    users = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_comments')
     articles = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='articlecomments')
     content = models.CharField(max_length=200)
     create_at = models.DateTimeField(auto_now_add=True)

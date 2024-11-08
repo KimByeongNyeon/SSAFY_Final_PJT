@@ -26,7 +26,7 @@ class FinancialProducts(models.Model):
     # 우대 조건
     spcl_cnd = models.TextField()
     # 예금 적금 판단할 수 있는 변수 ex. 예금은 0 적금은 1
-    product_type = models.IntegerField()
+    product_type = models.IntegerField(default=0)
 
 class FinancialOptions(models.Model):
     # 외래 키(FinancialProducts 클래스 참조)
@@ -46,8 +46,8 @@ class FinancialOptions(models.Model):
 
 
 class FinancialComment(models.Model):
-    users = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
-    financial_products = models.ForeignKey(FinancialProducts, on_delete=models.CASCADE, related_name='financial_comments')
+    users = models.ForeignKey(User, on_delete=models.CASCADE, related_name='financial_comments')
+    financial_products = models.ForeignKey(FinancialProducts, on_delete=models.CASCADE, related_name='financial_product_comments')
     content = models.CharField(max_length=200)
     create_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)

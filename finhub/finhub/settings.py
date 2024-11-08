@@ -34,7 +34,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# 모든 도메인 허용 (개발 중일 때)
+CORS_ALLOW_ALL_ORIGINS = True
 
+# 2.4 쿠키와 인증 관련 설정
+CORS_ALLOW_CREDENTIALS = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,7 +47,8 @@ INSTALLED_APPS = [
     'coins',
     'accounts',
     'articles',
-    'rest_framwork',
+    'rest_framework',
+    'corsgeaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,6 +58,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
