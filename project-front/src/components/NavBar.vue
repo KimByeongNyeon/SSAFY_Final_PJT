@@ -4,7 +4,7 @@
       <v-row justify="space-between" align="center">
         <!-- 로고 영역 -->
         <v-col class="d-flex align-center">
-          <v-icon>mdi-github</v-icon>
+          <router-link to="/"><v-icon>mdi-github</v-icon></router-link>
         </v-col>
 
         <!-- 메뉴 -->
@@ -16,16 +16,26 @@
 
         <!-- 로그인/회원가입 버튼 -->
         <v-col class="d-flex align-center" cols="auto">
-          <v-btn outlined class="mr-2">Sign in</v-btn>
-          <v-btn color="black" dark>Register</v-btn>
+          <v-btn outlined class="mr-2" @click="showLoginModal = true">Sign in</v-btn>
+          <v-btn color="black" dark><router-link to="/sign_up">Register</router-link></v-btn>
         </v-col>
       </v-row>
     </v-container>
+
+    <login-modal :is-open="showLoginModal" @update:is-open="showLoginModal = $event" />
   </v-app-bar>
 </template>
 
 <script setup>
+import { ref } from "vue";
+import LoginModal from "./LoginModal.vue";
 
+const showLoginModal = ref(false);
 </script>
 
-<style scoped></style>
+<style scoped>
+a {
+  text-decoration: none;
+  color: black;
+}
+</style>

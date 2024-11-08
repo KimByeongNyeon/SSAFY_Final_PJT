@@ -1,17 +1,15 @@
 <template>
-  <v-app>
-    <NavBar />
-    <MainPageCarousel :slides="carouselSlides" />
-    <MainPageFinProduct :tabs="tabs" :currentTab="currentTab" :headers="getHeaders" :items="getItems" @update:currentTab="currentTab = $event" />
-    <Footer />
-  </v-app>
+  <v-main>
+    <v-container>
+      <MainPageCarousel :slides="carouselSlides" />
+      <MainPageFinProduct :tabs="tabs" :currentTab="currentTab" :headers="getHeaders" :items="getItems" @update:currentTab="currentTab = $event" />
+    </v-container>
+  </v-main>
 </template>
 
 <script setup>
-import Footer from "@/components/Footer.vue";
 import MainPageCarousel from "@/components/MainPageCarousel.vue";
 import MainPageFinProduct from "@/components/MainPageFinProduct.vue";
-import NavBar from "@/components/NavBar.vue";
 import { ref, computed } from "vue";
 
 const currentTab = ref(0);
@@ -158,6 +156,4 @@ const getHeaders = computed(() => headers[currentTab.value]);
 const getItems = computed(() => items[currentTab.value]);
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
