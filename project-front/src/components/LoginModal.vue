@@ -51,17 +51,18 @@ const email = ref("");
 const password = ref("");
 const showPassword = ref(false);
 const rememberMe = ref(false);
-
-//   const login = () => {
-//     // 로그인 로직 구현
-//     console.log('로그인 시도', {
-//       email: email.value,
-//       password: password.value,
-//       rememberMe: rememberMe.value
-//     })
-//     // 성공 시 모달 닫기
-//     // emit('update:modelValue', false)
-//   }
+const login = () => {
+  console.log("로그인 시도", {
+    email: email.value,
+    password: password.value,
+    rememberMe: rememberMe.value,
+  });
+};
+// const login = () => {
+//   // 로그인 로직 구현
+//   // 성공 시 모달 닫기
+//   // emit('update:modelValue', false)
+// };
 </script>
 
 <style scoped>
