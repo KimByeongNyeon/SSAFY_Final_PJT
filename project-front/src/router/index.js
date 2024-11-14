@@ -14,6 +14,21 @@ const router = createRouter({
       component: MainView,
     },
     {
+      path: "/fin",
+      name: "fin",
+      component: FinView,
+    },
+    {
+      path: "/stock",
+      name: "stock",
+      component: StockView,
+    },
+    {
+      path: "/crypto",
+      name: "crypto",
+      component: CryptoView,
+    },
+    {
       path: "/sign_up",
       name: "SignUp",
       component: SignUpView,
