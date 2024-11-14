@@ -36,44 +36,60 @@
 
             <v-btn color="primary" block size="large" type="submit" :disabled="!isValid" class="mb-2">가입하기</v-btn>
 
-            <v-btn color="secondary" block size="large" variant="text" to="/login">이미 계정이 있으신가요? 로그인하기</v-btn>
+            <v-btn color="secondary" block size="large" variant="text" @click="showLoginModal = true">이미 계정이 있으신가요? 로그인하기</v-btn>
           </v-form>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
+
+  <LoginModal :is-open="showLoginModal" @update:is-open="showLoginModal = $event" />
 </template>
 
-<script>
-export default {
-  data: () => ({
-    isValid: false,
-    email: "",
-    password: "",
-    passwordConfirm: "",
-    name: "",
-    showPassword: false,
-    emailRules: [(v) => !!v || "이메일을 입력해주세요", (v) => /.+@.+\..+/.test(v) || "올바른 이메일 형식이 아닙니다"],
-    passwordRules: [
-      (v) => !!v || "비밀번호를 입력해주세요",
-      (v) => v.length >= 8 || "비밀번호는 최소 8자 이상이어야 합니다",
-      (v) => (/[A-Z]/.test(v) && /[a-z]/.test(v) && /[0-9]/.test(v)) || "대문자, 소문자, 숫자를 모두 포함해야 합니다",
-    ],
-    passwordConfirmRules: [(v) => !!v || "비밀번호를 한번 더 입력해주세요", (v) => v === this.password || "비밀번호가 일치하지 않습니다"],
-    nameRules: [(v) => !!v || "이름을 입력해주세요", (v) => v.length >= 2 || "이름은 최소 2자 이상이어야 합니다"],
-  }),
+<script setup>
+import LoginModal from "@/components/LoginModal.vue";
+import { ref, computed } from "vue";
+const showLoginModal = ref(false);
+const email = ref("");
+const password = ref("");
+const passwordConfirm = ref("");
+const name = ref("");
+const showPassword = ref(false);
 
-  methods: {
-    handleSubmit() {
-      if (this.isValid) {
-        // API 호출 또는 회원가입 로직 구현
-        console.log("Form submitted:", {
-          email: this.email,
-          password: this.password,
-          name: this.name,
-        });
-      }
-    },
-  },
-};
+const emailRules = [(v) => !!v || "이메일을 입력해주세요", (v) => /.+@.+\..+/.test(v) || "올바른 이메일 형식이 아닙니다"];
+
+const passwordRules = [
+  (v) => !!v || "비밀번호를 입력해주세요",
+  (v) => v.length >= 8 || "비밀번호는 최소 8자 이상이어야 합니다",
+  (v) => (/[A-Z]/.test(v) && /[a-z]/.test(v) && /[0-9]/.test(v)) || "대문자, 소문자, 숫자를 모두 포함해야 합니다",
+];
+
+const passwordConfirmRules = [(v) => !!v || "비밀번호를 한번 더 입력해주세요", (v) => v === password.value || "비밀번호가 일치하지 않습니다"];
+
+const nameRules = [(v) => !!v || "이름을 입력해주세요", (v) => v.length >= 2 || "이름은 최소 2자 이상이어야 합니다"];
+
+// 모든 필드가 유효한지 여부를 확인
+const isValid = computed(() => {
+  // 기본적으로 모든 규칙을 만족해야 유효함
+  const allRulesValid = [
+    ...emailRules.map((rule) => rule(email.value)),
+    ...passwordRules.map((rule) => rule(password.value)),
+    ...passwordConfirmRules.map((rule) => rule(passwordConfirm.value)),
+    ...nameRules.map((rule) => rule(name.value)),
+  ];
+
+  return allRulesValid.every((result) => result === true);
+});
+
+// 폼 제출 함수
+function handleSubmit() {
+  if (isValid.value) {
+    // API 호출 또는 회원가입 로직 구현
+    console.log("Form submitted:", {
+      email: email.value,
+      password: password.value,
+      name: name.value,
+    });
+  }
+}
 </script>
