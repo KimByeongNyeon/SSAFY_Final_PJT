@@ -35,7 +35,11 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # 모든 도메인 허용 (개발 중일 때)
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:5173',
+    'http://localhost:5173'
+    
+]
 
 # 2.4 쿠키와 인증 관련 설정
 CORS_ALLOW_CREDENTIALS = True
@@ -48,7 +52,7 @@ INSTALLED_APPS = [
     'accounts',
     'articles',
     'rest_framework',
-    'corsgeaders',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
