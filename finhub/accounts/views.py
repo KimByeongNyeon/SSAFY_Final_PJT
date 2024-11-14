@@ -27,7 +27,6 @@ def login(request):
     return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 # 로그아웃
 @api_view(['POST'])
 @login_required
