@@ -33,6 +33,21 @@ const router = createRouter({
       name: "SignUp",
       component: SignUpView,
     },
+    {
+      path: "/fin",
+      name: "Fin",
+      component: FinView,
+    },
+    {
+      path: "/stock",
+      name: "Stock",
+      component: StockView,
+    },
+    {
+      path: "/crypto",
+      name: "Crypto",
+      component: CryptoView,
+    },
   ],
 });
 
