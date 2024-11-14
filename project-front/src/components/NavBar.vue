@@ -9,11 +9,6 @@
 
         <!-- 메뉴 -->
         <v-col class="d-flex align-center" cols="auto">
-<<<<<<< HEAD
-          <router-link to="/fin"><v-btn text>금융상품</v-btn></router-link>
-          <router-link to="/stock"><v-btn text>주식</v-btn></router-link>
-          <router-link to="/crypto"><v-btn text>코인</v-btn></router-link>
-=======
           <router-link :to="{ name: 'fin' }">
             <v-btn text>금융상품</v-btn>
           </router-link>
@@ -23,7 +18,6 @@
           <router-link :to="{ name: 'crypto' }">
             <v-btn text>비트코인</v-btn>
           </router-link>
->>>>>>> 1ac8490f4d0f16d2d8962281fe8d35d971cbe61e
         </v-col>
 
         <!-- 로그인/회원가입 버튼 -->
