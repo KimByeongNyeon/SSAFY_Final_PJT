@@ -1,208 +1,129 @@
 <template>
-  <v-data-table :headers="getHeaders" :items="getItems" hide-default-footer class="financial-table">
-    <!-- 종목명/상품명 열 커스텀 템플릿 -->
-    <template v-slot:item.name="{ item }">
-      <div class="d-flex align-center">
-        <v-avatar size="24" class="mr-2">
-          <v-img :src="item.image || 'https://via.placeholder.com/24'" />
-        </v-avatar>
-        <div>
-          <div class="font-weight-medium">{{ item.name }}</div>
-          <div class="caption grey--text">{{ item.code }}</div>
-        </div>
-      </div>
-    </template>
+  <div>
+    <!-- 예금 정보 -->
+    <div v-if="topSavingOption" class="p-4 mb-6">
+      <h2>최고 금리 상품 정보</h2>
+      <!-- <v-carousel hide-delimiter-background height="400px"> -->
+      <!-- <v-carousel-item v-for="product in topSaving"> -->
+      <v-card class="expanded-details-card">
+        <v-card-title class="bg-blue-lighten-5 justify-space-between">
+          <RouterLink :to="{ name: 'fin' }" class="text-decoration-none font-weight-medium">더 보기</RouterLink>
+        </v-card-title>
 
-    <!-- 등락률/이자율 열 커스텀 템플릿 -->
-    <template v-slot:item.change="{ item }">
-      <span :class="getChangeClass(item.change)">{{ item.change >= 0 ? "+" : "" }}{{ item.change }}%</span>
-    </template>
+        <v-card-text class="pa-6">
+          <v-row>
+            <v-col cols="12" md="6">
+              <h3 class="text-h6 mb-4">상품 정보</h3>
+              <v-list>
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-bank" class="mr-2" />
+                  </template>
+                  <v-list-item-title>은행명</v-list-item-title>
+                  <template v-slot:append>
+                    <span class="font-weight-medium">{{ topSavingProduct?.kor_co_nm || "정보 없음" }}</span>
+                    <!-- <span class="font-weight-medium">{{ product.topSavingProduct?.kor_co_nm || "정보 없음" }}</span> -->
+                  </template>
+                </v-list-item>
 
-    <!-- 거래량 열 커스텀 템플릿 -->
-    <template v-slot:item.volume="{ item }">
-      {{ numberFormat(item.volume) }}
-    </template>
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-file-document" class="mr-2" />
+                  </template>
+                  <v-list-item-title>상품명</v-list-item-title>
+                  <template v-slot:append>
+                    <span class="font-weight-medium">{{ topSavingProduct?.fin_prdt_nm || "정보 없음" }}</span>
+                    <!-- <span class="font-weight-medium">{{ topSaving.topSavingProduct?.fin_prdt_nm || "정보 없음" }}</span> -->
+                  </template>
+                </v-list-item>
 
-    <!-- 금액 열 커스텀 템플릿 -->
-    <template v-slot:item.price="{ item }">
-      {{ numberFormat(item.price) }}
-    </template>
-  </v-data-table>
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-calendar" class="mr-2" />
+                  </template>
+                  <v-list-item-title>설명</v-list-item-title>
+                  <template v-slot:append>
+                    <span class="font-weight-medium">{{ topSavingProduct?.etc_note || "정보 없음" }}</span>
+                    <!-- <span class="font-weight-medium">{{ topSaving.topSavingProduct?.etc_note || "정보 없음" }}</span> -->
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-col>
+            <v-col cols="12" md="6">
+              <h3 class="text-h6 mb-4">금리 정보</h3>
+              <v-list>
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-chart-line" class="mr-2" />
+                  </template>
+                  <v-list-item-title>기본 금리</v-list-item-title>
+                  <template v-slot:append>
+                    <span class="font-weight-medium">{{ topSavingOption?.intr_rate || "정보 없음" }}</span>
+                    <!-- <span class="font-weight-medium">{{ topSaving.topSavingOption?.intr_rate || "정보 없음" }}</span> -->
+                  </template>
+                </v-list-item>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-star-outline" class="mr-2" />
+                  </template>
+                  <v-list-item-title>우대 금리</v-list-item-title>
+                  <template v-slot:append>
+                    <span class="font-weight-medium">{{ topSavingOption?.intr_rate2 || "정보 없음" }}</span>
+                    <!-- <span class="font-weight-medium">{{ topSaving.topSavingOption?.intr_rate2 || "정보 없음" }}</span> -->
+                  </template>
+                </v-list-item>
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-star-outline" class="mr-2" />
+                  </template>
+                  <v-list-item-title>기간</v-list-item-title>
+                  <template v-slot:append>
+                    <span class="font-weight-medium">{{ topSavingOption?.save_trm || "정보 없음" }} 개월</span>
+                    <!-- <span class="font-weight-medium">{{ topSaving.topSavingOption?.intr_rate2 || "정보 없음" }}</span> -->
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+      <!-- </v-carousel-item> -->
+      <!-- </v-carousel> -->
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { numberFormat, getChangeClass } from "@/utils/fomatters";
-import { computed } from "vue";
-const props = defineProps({
-  currentTab: Number,
-  tabs: Array,
+import axios from "axios";
+import { onMounted, ref } from "vue";
+
+// 예금 정보 관련 데이터
+const topSaving = ref(null);
+const topSavingProduct = ref(null);
+const topSavingOption = ref(null);
+
+// 각 섹션의 기본 데이터
+const items = ref([]);
+
+// API 호출
+onMounted(() => {
+  axios({
+    url: "http://127.0.0.1:8000/api/financials/financial-products/top_rate",
+    method: "get",
+  })
+    .then((res) => {
+      topSaving.value = res.data;
+      topSavingProduct.value = topSaving.value.Financial_product;
+      topSavingOption.value = topSaving.value.option;
+    })
+    .catch((error) => console.log(error));
 });
-
-const headers = {
-  stock: [
-    { text: "종목명", value: "name", align: "start" },
-    { text: "현재가", value: "price", align: "end" },
-    { text: "전일비", value: "priceChange", align: "end" },
-    { text: "등락률", value: "change", align: "end" },
-    { text: "거래량", value: "volume", align: "end" },
-    { text: "거래대금", value: "tradingValue", align: "end" },
-    { text: "시가총액", value: "marketCap", align: "end" },
-  ],
-  deposit: [
-    { text: "상품명", value: "name", align: "start" },
-    { text: "은행", value: "bank", align: "start" },
-    { text: "금리", value: "change", align: "end" },
-    { text: "최소가입금액", value: "minAmount", align: "end" },
-    { text: "가입기간", value: "period", align: "end" },
-  ],
-  savings: [
-    { text: "상품명", value: "name", align: "start" },
-    { text: "은행", value: "bank", align: "start" },
-    { text: "금리", value: "change", align: "end" },
-    { text: "월 납입액", value: "monthlyPayment", align: "end" },
-    { text: "가입기간", value: "period", align: "end" },
-  ],
-  crypto: [
-    { text: "암호화폐", value: "name", align: "start" },
-    { text: "현재가", value: "price", align: "end" },
-    { text: "전일비", value: "priceChange", align: "end" },
-    { text: "등락률", value: "change", align: "end" },
-    { text: "거래량", value: "volume", align: "end" },
-    { text: "시가총액", value: "marketCap", align: "end" },
-  ],
-};
-
-// 샘플 데이터
-const items = {
-  stock: [
-    {
-      name: "삼성전자",
-      code: "005930",
-      price: 57300,
-      priceChange: -300,
-      change: -0.52,
-      volume: 21933484,
-      tradingValue: 1253062,
-      marketCap: 3438595,
-    },
-    {
-      name: "SK하이닉스",
-      code: "000660",
-      price: 195800,
-      priceChange: 2600,
-      change: 1.35,
-      volume: 3418604,
-      tradingValue: 670697,
-      marketCap: 1406501,
-    },
-  ],
-  deposit: [
-    {
-      name: "프리미엄 정기예금",
-      bank: "신한은행",
-      code: "SH001",
-      change: 4.5,
-      minAmount: 10000000,
-      period: "12개월",
-    },
-    {
-      name: "디지털 정기예금",
-      bank: "국민은행",
-      code: "KB001",
-      change: 4.3,
-      minAmount: 5000000,
-      period: "24개월",
-    },
-  ],
-  savings: [
-    {
-      name: "청년우대적금",
-      bank: "우리은행",
-      code: "WR001",
-      change: 5.2,
-      monthlyPayment: 500000,
-      period: "36개월",
-    },
-    {
-      name: "직장인적금",
-      bank: "하나은행",
-      code: "HN001",
-      change: 4.8,
-      monthlyPayment: 1000000,
-      period: "24개월",
-    },
-  ],
-  crypto: [
-    {
-      name: "비트코인",
-      code: "BTC",
-      price: 68000000,
-      priceChange: 1500000,
-      change: 2.25,
-      volume: 5234567,
-      marketCap: 1234567890,
-    },
-    {
-      name: "이더리움",
-      code: "ETH",
-      price: 3500000,
-      priceChange: -50000,
-      change: -1.41,
-      volume: 3456789,
-      marketCap: 987654321,
-    },
-  ],
-};
-const tabToKey = {
-  예금: "deposit",
-  적금: "savings",
-  주식: "stock",
-  코인: "crypto",
-};
-
-const getHeaders = computed(() => {
-  const key = tabToKey[props.tabs[props.currentTab]];
-  return headers[key];
-});
-
-const getItems = computed(() => {
-  const key = tabToKey[props.tabs[props.currentTab]];
-  return items[key];
-});
+// 데이터 테이블 헤더
+const headers = [
+  { text: "상품명", value: "name" },
+  { text: "은행", value: "bank" },
+  { text: "금리", value: "rate" },
+  { text: "가입기간", value: "period" },
+];
 </script>
-
-<style scoped>
-/* 테이블 스타일 */
-.financial-table {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.financial-table >>> .v-data-table__wrapper {
-  margin: 0 -16px;
-}
-
-.financial-table >>> table {
-  border-spacing: 0;
-}
-
-.financial-table >>> th {
-  background: #f8f9fa !important;
-  color: #4a5568 !important;
-  font-weight: 600 !important;
-  white-space: nowrap;
-}
-
-.financial-table >>> td {
-  border-bottom: 1px solid #e2e8f0;
-  padding: 12px 16px !important;
-  font-size: 0.875rem;
-}
-.red--text {
-  color: #ff5252;
-}
-.blue--text {
-  color: #2196f3;
-}
-</style>
