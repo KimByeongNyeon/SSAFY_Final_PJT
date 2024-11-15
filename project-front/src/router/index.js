@@ -4,6 +4,7 @@ import SignUpView from "@/views/SignUpView.vue";
 import FinView from "@/views/FinView.vue";
 import StockView from "@/views/StockView.vue";
 import CryptoView from "@/views/CryptoView.vue";
+import FinDetailView from "@/views/FinDetailView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,6 +48,11 @@ const router = createRouter({
       path: "/crypto",
       name: "Crypto",
       component: CryptoView,
+    },
+    {
+      path: "/fin/:fin_prdt_cd",
+      name: "finDetail",
+      component: FinDetailView,
     },
   ],
 });
