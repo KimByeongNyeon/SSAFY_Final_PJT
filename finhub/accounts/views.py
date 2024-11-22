@@ -1,78 +1,97 @@
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from django.shortcuts import render
-from django.shortcuts import redirect, render
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout as auth_logout
+from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserCreationForm,CustomUserChangeForm
+from rest_framework import status
+from rest_framework.response import Response
+from articles.models import Article  
+from financials.models import FinancialProductLike, FinancialComment
+from .serializers import CustomRegisterSerializer
+from financials.serializers import FinancialProductsSerializer, FinancialCommentSerializer
+from articles.serializers import ArticleSerializer
+from .serializers import UserUpdateSerializer
+from django.contrib.auth import get_user_model
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status, permissions
 
 
-# Create your views here.
 
-# 로그인
+User = get_user_model()
 @api_view(['POST'])
-def login(request):
-    form = AuthenticationForm(request, request.POST)
-    if form.is_valid():
-        # 만약 인증된 사용자라면 로그인 진행(세션 데이터 생성)
-        # auth_login(request, 인증된 유저 객체)
-        # auth_login(request, form.get_user()) <- 아래와 같은 코드
-        user = form.get_user()
-        auth_login(request,user)
-        return  Response({"message": "Login successful", "user": user.username}, status=status.HTTP_200_OK)
+def register_user(request):
+    """
+    회원가입 데이터를 처리하고 저장하는 뷰
+    """
+    serializer = CustomRegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        # 유저 저장
+        user = serializer.save(request)
+        
+        # 저장된 데이터를 가공하여 반환
+        saved_data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "nickname": user.nickname,
+            "age": user.age,
+            "capital": user.capital,
+            "sido": user.sido,
+            "sigungus": user.sigungus,
+        }
+        # 추가 작업 (예: 로깅, 외부 API 호출 등)
+        print("New user created:", saved_data)
+    
+        return Response(saved_data, status=status.HTTP_201_CREATED)
+    if not serializer.is_valid():
+        print(serializer.errors)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# 로그아웃
-@api_view(['POST'])
+@api_view(['GET'])
 @login_required
-def logout(request):
-    auth_logout(request)
-    return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+def user_profile(request):
+    user = request.user
+
+    # 기본 유저 정보
+    user_info = {
+        "username": user.username,
+        "nickname": user.nickname,
+        "age": user.age,
+        "capital": user.capital,
+        "sido": user.sido,
+        "sigungus": user.sigungus,
+    }
+
+    # 좋아요 한 금융 상품
+    liked_products = FinancialProductLike.objects.filter(user=user)
+    liked_products_data = FinancialProductsSerializer(
+        [like.product for like in liked_products], many=True
+    ).data
+
+    # 작성한 댓글
+    comments = FinancialComment.objects.filter(users=user)
+    comments_data = FinancialCommentSerializer(comments, many=True).data
+
+    # 작성한 글
+    articles = Article.objects.filter(users_id=user)
+    articles_data = ArticleSerializer(articles, many=True).data
+
+    # 최종 응답 데이터
+    profile_data = {
+        "user_info": user_info,
+        "liked_products": liked_products_data,
+        "comments": comments_data,
+        "articles": articles_data,
+    }
+
+    return Response(profile_data)
 
 
-# 회원가입
-@api_view(['POST'])
-def signup(request):
-    form = CustomUserCreationForm(request.POST)
-    if form.is_valid():
-        user = form.save()
-        auth_login(request, user)
-        return Response({"message": "Signup successful", "user": user.username}, status=status.HTTP_201_CREATED)
-    return Response({"errors": form.errors}, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['PUT', 'PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def update_profile(request):
+    user = request.user
+    serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-#회원 탈퇴
-@api_view(['DELETE'])
-@login_required
-def delete(request):
-    request.user.delete()
-    auth_logout(request)
-    return Response({"message": "Account deleted"}, status=status.HTTP_200_OK)
-
-#회원 정보 수정
-@api_view(['PUT'])
-@login_required
-def update(request):
-    form = CustomUserChangeForm(request.POST, instance=request.user)
-    if form.is_valid():
-        form.save()
-        return Response({"message": "Account updated"}, status=status.HTTP_200_OK)
-    return Response({"errors": form.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-# 비밀번호 수정
-@api_view(['PUT'])
-@login_required
-def password_change(request):
-    form = PasswordChangeForm(request.user, request.POST)
-    if form.is_valid():
-        form.save()
-        #비밀번호가 변경 됐다면 로그아웃(다시 로그인 페이지로 보내야함)
-        auth_logout(request)
-        return Response({"message": "Password changed, please log in again"}, status=status.HTTP_200_OK)
-    return Response({"errors": form.errors}, status=status.HTTP_400_BAD_REQUEST)
