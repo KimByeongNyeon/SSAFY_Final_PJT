@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework import status
 from finhub import settings
 import requests
+from django.db.models import Q
 
 # Create your views here.
 
@@ -314,7 +315,8 @@ def exchange_rate(request):
     API = settings.EXCHANGE_API_KEY
     params = {
         "authkey": API,
-        "data": "AP01"
+        "searchdate" : "20241120",
+        "data": "AP01",
     }
 
     try:
@@ -401,3 +403,102 @@ def financial_products_with_options(request):
         products = FinancialProducts.objects.all()  # 모든 금융 상품 가져오기
         serializer = FinancialProductWithOptionsSerializer(products, many=True)  # 직렬화
         return Response(serializer.data)
+
+
+
+###### 상품 추천 알고리즘
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def age_based_recommendation(request):
+    """
+    사용자의 연령대에 따른 맞춤형 금융상품 추천
+    연령 제한을 고려하여 추천
+    """
+    user = request.user
+    age = user.age
+
+    if not age:
+        return Response(
+            {"error": "사용자의 나이 정보가 필요합니다."}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def check_age_eligibility(join_member, user_age):
+        if not join_member:
+            return True
+            
+        join_member = join_member.lower().replace(" ", "")
+
+        age_restrictions = {
+            "만50세이상": lambda age: age >= 50,
+            "만34세": lambda age: age <= 34,
+            "만29세이하": lambda age: age <= 29,
+            "만19세~만34세": lambda age: 19 <= age <= 34,
+            "만19세이상": lambda age: age >= 19,
+            "만18세이상": lambda age: age >= 18,
+            "만17세이상": lambda age: age >= 17,
+            "만14세이상": lambda age: age >= 14,
+            "15세이하": lambda age: age <= 15
+        }
+
+        if "제한없음" in join_member:
+            return True
+
+        for keyword, check_func in age_restrictions.items():
+            if keyword.replace(" ", "") in join_member:
+                if not check_func(user_age):
+                    return False
+
+        return True
+
+    base_query = FinancialProducts.objects.all()
+    
+    if age < 25:
+        base_filter = Q(option__save_trm__lte=12) & Q(join_deny=1)
+        recommendation_message = "청년층을 위한 단기 고금리 상품 추천"
+        
+    elif 25 <= age < 35:
+        base_filter = Q(option__save_trm__range=(12, 24)) & Q(join_deny=1)
+        recommendation_message = "사회초년생을 위한 중기 적금 상품 추천"
+        
+    elif 35 <= age < 50:
+        base_filter = Q(option__save_trm__gte=24) & Q(join_deny=1)
+        recommendation_message = "자산형성기를 위한 장기 상품 추천"
+        
+    else:
+        base_filter = Q(option__save_trm__lte=12) & Q(option__intr_rate_type_nm='단리')
+        recommendation_message = "장년층을 위한 안정적인 단기 상품 추천"
+
+    # 예금과 적금 분리
+    deposit_products = base_query.filter(base_filter & Q(product_type=0)).distinct()
+    savings_products = base_query.filter(base_filter & Q(product_type=1)).distinct()
+
+    def filter_and_sort(products):
+        eligible_products = [
+            product for product in products
+            if check_age_eligibility(product.join_member, age)
+        ]
+        eligible_products.sort(
+            key=lambda x: max([opt.intr_rate2 for opt in x.option.all()]), 
+            reverse=True
+        )
+        return eligible_products[:5]
+
+    top_deposit_products = filter_and_sort(deposit_products)
+    top_savings_products = filter_and_sort(savings_products)
+
+    # 두 리스트 직렬화
+    deposit_serializer = FinancialProductWithOptionsSerializer(top_deposit_products, many=True)
+    savings_serializer = FinancialProductWithOptionsSerializer(top_savings_products, many=True)
+
+    response_data = {
+        "message": recommendation_message,
+        "user_age": age,
+        "recommendations": {
+            "deposits": deposit_serializer.data,
+            "savings": savings_serializer.data
+        }
+    }
+    
+    return Response(response_data, status=status.HTTP_200_OK)

@@ -1,43 +1,45 @@
 <template>
-  <v-main class="bg-grey-lighten-4 pa-6" style="margin-top: 30px">
+  <v-main class="bg-grey-lighten-5 pa-6" style="margin-top: 30px">
     <v-container>
       <!-- 상단 타이틀 카드 -->
-      <v-card class="mb-6 rounded-lg" elevation="1">
-        <div class="d-flex align-center pa-4 gradient-background">
-          <v-icon icon="mdi-bitcoin" size="x-large" color="amber-darken-2" class="mr-4" />
+      <v-card class="mb-6 rounded-xl" elevation="2">
+        <div class="d-flex align-center pa-6 premium-gradient">
+          <v-avatar color="white" size="56" class="mr-6" elevation="2">
+            <v-icon icon="mdi-bitcoin" size="32" color="amber-darken-2" />
+          </v-avatar>
           <div>
             <h1 class="text-h4 font-weight-bold text-white mb-1">코인 거래소</h1>
-            <p class="text-grey-lighten-3 mb-0">실시간 암호화폐 시세 및 차트</p>
+            <p class="text-grey-lighten-4 mb-0 text-body-1">실시간 암호화폐 시세 및 차트</p>
           </div>
         </div>
       </v-card>
 
       <!-- 메인 데이터 테이블 카드 -->
-      <v-card elevation="1" class="rounded-lg">
+      <v-card elevation="2" class="rounded-xl">
         <v-card-text class="pa-0">
-          <v-table fixed-header height="600px">
+          <v-table fixed-header height="600px" class="crypto-table">
             <thead>
               <tr>
-                <th class="text-left py-4 pl-6 text-h6 font-weight-bold">코인명</th>
-                <th class="text-right py-4 pr-6 text-h6 font-weight-bold">현재가</th>
+                <th class="text-left py-5 pl-8 text-h6">코인명</th>
+                <th class="text-right py-5 pr-8 text-h6">현재가</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="coin in coins" :key="coin.code" class="hover-row" @click="openChart(coin)">
-                <td class="pl-6">
-                  <div class="d-flex align-center">
-                    <v-chip :color="getRandomColor(coin.code)" label size="small" class="mr-3 font-weight-bold" variant="outlined">
+                <td class="pl-8">
+                  <div class="d-flex align-center py-3">
+                    <v-chip :color="getRandomColor(coin.code)" label size="small" class="mr-4 font-weight-bold px-4" variant="flat">
                       {{ coin.code.replace("KRW-", "") }}
                     </v-chip>
-                    <span class="font-weight-medium">{{ coin.name }}</span>
+                    <span class="font-weight-medium text-body-1">{{ coin.name }}</span>
                   </div>
                 </td>
-                <td class="text-right pr-6">
+                <td class="text-right pr-8">
                   <div>
                     <span class="text-h6 font-weight-bold">
                       {{ Number(coin.price).toLocaleString() }}
                     </span>
-                    <span class="text-grey-darken-1 ml-1 text-body-2">KRW</span>
+                    <span class="text-grey-darken-1 ml-2">KRW</span>
                   </div>
                 </td>
               </tr>
@@ -48,33 +50,40 @@
     </v-container>
 
     <!-- 차트 다이얼로그 -->
-    <v-dialog v-model="showChart" width="1000" height="700" @update:model-value="handleDialogClose" transition="dialog-bottom-transition">
-      <v-card class="rounded-lg">
-        <v-toolbar :color="getRandomColor(selectedCoin?.code)" prominent class="px-4">
+    <v-dialog v-model="showChart" width="1000" @update:model-value="handleDialogClose" transition="dialog-bottom-transition" class="rounded-xl">
+      <v-card class="rounded-xl">
+        <v-toolbar :color="getRandomColor(selectedCoin?.code)" prominent class="px-6 chart-toolbar">
           <template v-if="selectedCoin">
-            <v-chip label size="large" variant="outlined" class="mr-3 font-weight-bold text-white" border>
+            <v-chip label size="large" variant="outlined" class="mr-4 font-weight-bold text-white pa-4" border>
               {{ selectedCoin.code.replace("KRW-", "") }}
             </v-chip>
             <div>
               <div class="text-h5 font-weight-bold text-white mb-1">
                 {{ selectedCoin.name }}
               </div>
-              <div class="text-grey-lighten-3">{{ Number(selectedCoin.price).toLocaleString() }} KRW</div>
+              <div class="text-grey-lighten-4 text-body-1">{{ Number(selectedCoin.price).toLocaleString() }} KRW</div>
             </div>
           </template>
           <template v-slot:append>
-            <v-btn icon="mdi-close" variant="text" color="white" @click="showChart = false"></v-btn>
+            <v-btn icon="mdi-close" variant="text" color="white" size="large" @click="showChart = false"></v-btn>
           </template>
         </v-toolbar>
 
-        <v-card-text class="pa-6">
-          <v-btn-group variant="outlined" class="mb-6 rounded-lg" divided>
-            <v-btn v-for="interval in intervals" :key="interval.value" :color="selectedInterval === interval.value ? 'primary' : undefined" @click="changeInterval(interval.value)" class="px-6">
+        <v-card-text class="pa-8">
+          <v-btn-group variant="outlined" class="mb-8 rounded-lg custom-btn-group" divided>
+            <v-btn
+              v-for="interval in intervals"
+              :key="interval.value"
+              :color="selectedInterval === interval.value ? 'primary' : undefined"
+              @click="changeInterval(interval.value)"
+              class="px-6 py-2"
+              elevation="0"
+            >
               {{ interval.label }}
             </v-btn>
           </v-btn-group>
 
-          <div ref="chartContainer" class="rounded-lg overflow-hidden" style="height: 500px"></div>
+          <div ref="chartContainer" class="rounded-xl chart-container"></div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -120,8 +129,9 @@ const intervals = [
 ];
 
 // 유틸리티 함수
+// 유틸리티 함수
 const getRandomColor = (code) => {
-  const colors = ["primary", "secondary", "success", "info", "warning"];
+  const colors = ["primary", "secondary", "success", "info", "warning", "error", "indigo", "deep-purple", "blue", "teal", "green", "orange"];
   const hash = code.split("").reduce((acc, char) => char.charCodeAt(0) + acc, 0);
   return colors[hash % colors.length];
 };
@@ -233,7 +243,12 @@ const fetchMarketNames = async () => {
         price: 0,
       }));
   } catch (error) {
-    console.error("Error fetching market names:", error);
+    swal({
+      title: "실패",
+      text: "데이터를 찾지 못했어요...",
+      icon: "error",
+      button: "확인",
+    });
     return [];
   }
 };
@@ -278,7 +293,12 @@ const fetchCandleData = async () => {
       }
     }
   } catch (error) {
-    console.error("캔들 데이터 조회 실패:", error);
+    swal({
+      title: "실패",
+      text: "데이터를 찾지 못했어요...",
+      icon: "error",
+      button: "확인",
+    });
   }
 };
 
@@ -286,7 +306,6 @@ const connectWebSocket = () => {
   socket = new WebSocket("wss://api.upbit.com/websocket/v1");
 
   socket.onopen = () => {
-    console.log("WebSocket connected!");
     const codes = coins.value.map((coin) => coin.code);
     socket.send(JSON.stringify([{ ticket: "UNIQUE_TICKET_ID" }, { type: "ticker", codes }]));
   };
@@ -300,17 +319,25 @@ const connectWebSocket = () => {
         coins.value[coinIndex].price = data.trade_price;
       }
     } catch (error) {
-      console.error("JSON 파싱 에러:", error);
+      swal({
+        title: "실패",
+        text: "데이터를 찾지 못했어요...",
+        icon: "error",
+        button: "확인",
+      });
     }
   };
 
   socket.onerror = (error) => {
-    console.error("WebSocket error:", error);
+    swal({
+      title: "실패",
+      text: "데이터를 찾지 못했어요...",
+      icon: "error",
+      button: "확인",
+    });
   };
 
-  socket.onclose = () => {
-    console.log("WebSocket closed!");
-  };
+  socket.onclose = () => {};
 };
 
 const connectChartWebSocket = () => {
@@ -322,7 +349,6 @@ const connectChartWebSocket = () => {
   chartSocket.binaryType = "blob";
 
   chartSocket.onopen = () => {
-    console.log("Chart WebSocket connected!");
     const codes = [selectedCoin.value.code];
     chartSocket.send(JSON.stringify([{ ticket: "CHART_SOCKET" }, { type: "trade", codes }]));
   };
@@ -333,17 +359,25 @@ const connectChartWebSocket = () => {
       const data = JSON.parse(text);
       updateRealtimeCandle(data);
     } catch (error) {
-      console.error("Chart WebSocket 파싱 에러:", error);
+      swal({
+        title: "실패",
+        text: "데이터를 찾지 못했어요...",
+        icon: "error",
+        button: "확인",
+      });
     }
   };
 
   chartSocket.onerror = (error) => {
-    console.error("Chart WebSocket error:", error);
+    swal({
+      title: "실패",
+      text: "데이터를 찾지 못했어요...",
+      icon: "error",
+      button: "확인",
+    });
   };
 
-  chartSocket.onclose = () => {
-    console.log("Chart WebSocket closed!");
-  };
+  chartSocket.onclose = () => {};
 };
 
 // 이벤트 핸들러
@@ -405,37 +439,108 @@ watch(showChart, (newValue) => {
 </script>
 
 <style scoped>
-.gradient-background {
-  background: linear-gradient(135deg, #1867c0 0%, #5cbbf6 100%);
+.premium-gradient {
+  background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
 }
 
 .hover-row {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .hover-row:hover {
-  background-color: rgb(var(--v-theme-primary), 0.05) !important;
+  background-color: rgba(var(--v-theme-primary), 0.04);
+  transform: translateY(-1px);
 }
 
-/* 차트 컨테이너 스타일 */
-:deep(.tv-lightweight-charts) {
-  border-radius: 8px;
+/* 차트 관련 스타일 수정 */
+.chart-container {
+  height: 600px; /* 차트 높이 증가 */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  background: linear-gradient(to bottom, #ffffff, #f8fafc);
+}
+
+.custom-btn-group {
+  border: none;
+  background-color: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.custom-btn-group .v-btn {
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  border: none !important;
+  background-color: transparent;
+  min-width: 80px;
+  border-radius: 8px !important;
+  height: 40px;
+  font-size: 0.9rem;
+}
+
+.custom-btn-group .v-btn:hover {
+  background-color: rgba(var(--v-theme-primary), 0.05);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.custom-btn-group .v-btn.v-btn--active {
+  background-color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: #1a237e;
+}
+
+/* 차트 다이얼로그 스타일 개선 */
+:deep(.v-dialog > .v-card) {
+  border-radius: 24px;
   overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 버튼 그룹 호버 효과 */
-.v-btn-group .v-btn:hover {
-  background-color: rgb(var(--v-theme-primary), 0.1);
+.chart-toolbar {
+  background: linear-gradient(to right, rgba(26, 35, 126, 0.95), rgba(13, 71, 161, 0.95)) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 90px !important;
 }
 
-/* 테이블 스타일링 */
+:deep(.v-toolbar-title) {
+  font-size: 1.5rem !important;
+  font-weight: 700;
+}
+
+/* 차트 관련 칩 스타일 */
+:deep(.v-chip) {
+  background-color: inherit !important; /* CSS 우선 순위 문제 방지 */
+  color: inherit !important; /* 텍스트 색상 충돌 방지 */
+}
+:deep(.v-chip--flat) {
+  opacity: 0.9;
+}
+
+/* 호버 효과 추가 */
+:deep(.v-chip:hover) {
+  opacity: 1;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+.crypto-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
 :deep(.v-table) {
   background: transparent !important;
 }
 
 :deep(.v-table__wrapper) {
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: none;
 }
 
 :deep(.v-table > .v-table__wrapper > table) {
@@ -445,20 +550,40 @@ watch(showChart, (newValue) => {
 :deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
   background: white !important;
   color: #1a237e !important;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 :deep(.v-table > .v-table__wrapper > table > tbody > tr:not(:last-child) > td) {
-  border-bottom: thin solid rgba(var(--v-border-color), 0.2) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
-/* 다이얼로그 트랜지션 */
+/* 다이얼로그 트랜지션 개선 */
 .dialog-bottom-transition-enter-active,
 .dialog-bottom-transition-leave-active {
-  transition: transform 0.3s ease-in-out;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dialog-bottom-transition-enter-from,
 .dialog-bottom-transition-leave-to {
-  transform: translateY(100%);
+  transform: translateY(50px);
+  opacity: 0;
+}
+
+/* 닫기 버튼 스타일 */
+:deep(.v-toolbar .v-btn--icon) {
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+:deep(.v-toolbar .v-btn--icon:hover) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+/* 차트 컨테이너 내부 스타일 */
+:deep(.tv-lightweight-charts) {
+  border-radius: 12px;
+  overflow: hidden;
 }
 </style>

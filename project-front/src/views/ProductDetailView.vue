@@ -63,7 +63,7 @@
         <v-icon color="primary" class="mr-2">mdi-map-marker</v-icon>
         지점 위치
       </v-card-title>
-      <BankMap :bank="product.kor_co_nm" />
+      <BankMap :bank="product.kor_co_nm" @error="handleError" />
     </v-card>
 
     <!-- 댓글 섹션 -->
@@ -144,7 +144,12 @@ const toggleLike = async () => {
       isLiked.value = true;
     }
   } catch (error) {
-    console.error(error);
+    swal({
+      title: "실패",
+      text: "좋아요 중 문제가 발생했습니다. 다시 시도해주세요.",
+      icon: "error",
+      button: "확인",
+    });
   }
 };
 
@@ -157,7 +162,13 @@ onMounted(async () => {
     const response = await axios.get(`${store.API_URL}/api/financials/products/${product.value.id}/like/`, { headers });
     isLiked.value = response.data.is_liked;
   } catch (error) {
-    console.error("초기 데이터 로드 중 오류 발생:", error);
+    console.error(error);
+    // swal({
+    //   title: "실패",
+    //   text: "데이터 로드 중 문제가 발생했습니다. 다시 시도해주세요.",
+    //   icon: "error",
+    //   button: "확인",
+    // });
   }
 });
 </script>

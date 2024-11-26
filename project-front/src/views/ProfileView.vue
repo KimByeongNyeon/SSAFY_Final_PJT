@@ -95,8 +95,18 @@
         </v-card>
       </v-col>
     </v-row>
-
     <!-- 내가 쓴 글 -->
+
+    <v-row class="mt-6" justify="space-between">
+      <!-- 추천 예금 -->
+      <v-col cols="12" md="6">
+        <RecommendDeposit />
+      </v-col>
+      <!-- 추천 적금 -->
+      <v-col cols="12" md="6">
+        <RecommendSaving />
+      </v-col>
+    </v-row>
     <v-card style="margin: 10px" class="my-6 info-card">
       <v-card-title class="font-weight-bold text-h6">내가 쓴 글</v-card-title>
       <v-card-text>
@@ -169,6 +179,8 @@ import { useAccount } from "@/stores/accounts";
 import { computed, ref, watch, watchEffect } from "vue";
 import axios from "axios";
 import { useAddressStore } from "@/stores/address";
+import RecommendSaving from "@/components/RecommendSaving.vue";
+import RecommendDeposit from "@/components/RecommendDeposit.vue";
 
 const accountStore = useAccount();
 const isLogin = computed(() => accountStore.isLogin);
@@ -200,7 +212,6 @@ const sigugunList = computed(() => {
 
 const openEditModal = () => {
   showEditModal.value = true;
-  console.log(showEditModal.value);
 };
 
 // 시/도 변경 시 시/군/구 초기화
@@ -247,8 +258,12 @@ const saveProfile = async () => {
       button: "확인",
     });
   } catch (error) {
-    console.error("프로필 업데이트 실패:", error);
-    alert("프로필 업데이트 중 오류가 발생했습니다.");
+    swal({
+      title: "실패",
+      text: "프로필 업데이트에 실패했습니다.",
+      icon: "error",
+      button: "확인",
+    });
   }
 };
 
@@ -277,7 +292,12 @@ const unlikeProduct = async (productId, productType) => {
       accountStore.user.liked_products = likedProducts.value.filter((product) => product.id !== productId);
     }
   } catch (error) {
-    console.error("좋아요 취소 실패:", error);
+    swal({
+      title: "실패",
+      text: "좋아요 취소 실패",
+      icon: "error",
+      button: "확인",
+    });
   }
 };
 </script>
@@ -295,8 +315,10 @@ const unlikeProduct = async (productId, productType) => {
 
 /* 캐러셀 컨테이너 */
 .carousel-container {
-  max-width: 600px; /* 캐러셀 크기를 카드 크기에 맞춤 */
-  margin: 0 auto; /* 가운데 정렬 */
+  max-width: 600px;
+  /* 캐러셀 크기를 카드 크기에 맞춤 */
+  margin: 0 auto;
+  /* 가운데 정렬 */
 }
 
 /* 캐러셀 카드 */
@@ -355,6 +377,7 @@ const unlikeProduct = async (productId, productType) => {
   font-style: italic;
   margin: 16px 0;
 }
+
 /* 리스트 아이템 스타일 */
 .product-item,
 .post-item {
